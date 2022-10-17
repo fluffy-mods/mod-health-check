@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    {{!-- bulma styling --}}
+    <link rel="stylesheet" href="assets/bulma.css" />
+
+    {{!-- code blocks and copy button --}}
+    <script src="assets/highlightjs/highlight.min.js"></script>
+    <link rel="stylesheet" href="assets/highlightjs/monokai.min.css">
+
+    <script src="assets/highlightjs/highlightjs-copy.min.js"></script>
+    <link rel="stylesheet" href="assets/highlightjs/highlightjs-copy.min.css" />
+    <script>
+        hljs.addPlugin(new CopyButtonPlugin());
+        hljs.highlightAll();
+    </script>
+    <title>Fluffy Mods - Steam Workshop status</title>
+</head>
+
+<body>
+    <div class="container mt-4">
+        <div class="title is-size-2">Mod status</div>
+        {{#if any_censorship}}
+        <div class="title is-size-4 mb-2">Summary</div>
+        <pre class="mb-2 p-0"><code class="p-3">{{summary}}</code></pre>
+        <div class="title is-size-4 mt-5 mb-2">All mods</div>
+        {{/if}}
+
+        {{#each mods}}
+        <div class="card mb-2 {{#if censored}}has-background-danger-dark has-text-white{{/if}}">
+            <div class="card-content p-3">
+                <div class="content">
+                    {{name}}
+                    <span class="tag is-pulled-right {{#if outdated}}is-warning{{else}}is-info{{/if}}">
+                        {{version}}
+                    </span>
+                    {{#if censored}}<div>Censored: <span class="has-text-weight-bold">{{censored}}</span></div>{{/if}}
+                    <div class="is-size-7 has-text-grey-light">last updated: {{updated}}</div>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+</body>
+
+</html>

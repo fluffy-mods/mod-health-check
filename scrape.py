@@ -1,28 +1,35 @@
 from bs4 import BeautifulSoup
 import requests
 import time
+import json
 
 collection_url = "https://steamcommunity.com/workshop/filedetails/?id=2229246849"
 
 response = requests.get(collection_url)
 
 collection = BeautifulSoup(response.text, "html.parser")
-mods = collection("div", class_="collectionItemDetails")
-urls = [mod.find("a")["href"] for mod in mods]
+mod_elements = collection("div", class_="collectionItemDetails")
+urls = [mod_element.find("a")["href"] for mod_element in mod_elements]
+mods = []
 
 for url in urls:
     response = requests.get(url)
-    mod = BeautifulSoup(response.text, "html.parser")
+    mod_page = BeautifulSoup(response.text, "html.parser")
 
-    title = mod.find("div", class_="workshopItemTitle").text
-    description = mod.find("div", class_="workshopItemDescription")
-    version = mod.find(
-        "div", class_="rightDetailsBlock").find_all("a")[-1].text
+    title = mod_page.find("div", class_="workshopItemTitle").text
+    description = mod_page.find("div", class_="workshopItemDescription")
+    version = mod_page.find("div", class_="rightDetailsBlock").find_all("a")[-1].text
+
+    mod = {"name": title, "version": version, "url": url, "updated": time.asctime()}
 
     if description("span", class_="bb_removedlink"):
         # print(f"{title} has had links removed ({url})")
-        print(
-            f"\"{title}\", \"{time.asctime()}\", \"links removed\", \"{version}\"\n")
+        mod["censored"] = "links and comments disabled"
     else:
-        print(
-            f"\"{title}\", \"{time.asctime()}\", \"OK\", \"{version}\"\n")
+        mod["censored"] = False
+
+    mods.append(mod)
+    print(mod)
+
+with open("censorship.json", mode="w", encoding="utf8") as f:
+    json.dump(mods, f)

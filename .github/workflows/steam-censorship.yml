@@ -5,15 +5,22 @@ on:
   #   - cron: "*/15 * * * *"
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
-  scrape:
-    name: Scrape steamcommunity websites
+  censorship:
+    name: Scrape censorship data
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.5.0
-      - uses: actions/setup-python@v4.3.0
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Setup python
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.9.9
+          python-version: 3.9
           cache: pipenv
       - name: Install pipenv
         run: curl https://raw.githubusercontent.com/pypa/pipenv/master/get-pipenv.py | python
@@ -22,3 +29,49 @@ jobs:
       - name: Scrape
         run: pipenv run python scrape.py
         shell: bash
+      - name: Create censorship artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: censorship
+          path: censorship.json
+
+  html:
+    name: Render html pages
+    needs: censorship
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: "npm"
+      - name: Install dependencies
+        run: npm install
+      - name: Fetch artefacts
+        uses: actions/download-artifact@v3
+        with:
+          name: censorship
+      - name: Create output dir
+        run: mkdir _site
+      - name: Copy static assets
+        run: cp -r assets/ _site/
+      - name: Render html
+        run: node render.mjs
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: _site
+
+  deploy:
+    name: Deploy to GitHub pages
+    needs: html
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
