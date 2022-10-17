@@ -4,7 +4,7 @@ import fs from "fs";
 const template = fs.readFileSync("index.html.handlebars", "utf8");
 
 /** @type {{ name: string, version: string, updated: string, url: string, censored: string | boolean}[]} */
-let raw_mods = JSON.parse(fs.readFileSync("censorship.json", "utf8"));
+let raw_mods = JSON.parse(fs.readFileSync("censorship.json", "utf8")).mods;
 let mods = raw_mods
     .map((mod) => ({ ...mod, version: parseFloat(mod.version) }))
     .sort((a, b) => {

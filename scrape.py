@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+from urllib.parse import quote
 import requests
 import time
 import json
@@ -20,7 +21,12 @@ for url in urls:
     description = mod_page.find("div", class_="workshopItemDescription")
     version = mod_page.find("div", class_="rightDetailsBlock").find_all("a")[-1].text
 
-    mod = {"name": title, "version": version, "url": url, "updated": time.asctime()}
+    mod = {
+        "name": title,
+        "version": version,
+        "url": url,
+        "updated": time.asctime(),
+    }
 
     if description("span", class_="bb_removedlink"):
         # print(f"{title} has had links removed ({url})")
@@ -31,5 +37,9 @@ for url in urls:
     mods.append(mod)
     print(mod)
 
+requests.post(
+    "https://hook.eu1.make.com/bsuctkbg5sukw8cbb44o0df4sojq25hv", json={"mods": mods}
+)
+
 with open("censorship.json", mode="w", encoding="utf8") as f:
-    json.dump(mods, f)
+    json.dump({"mods": mods}, f)
