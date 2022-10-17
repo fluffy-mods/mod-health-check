@@ -20,5 +20,5 @@ jobs:
       - name: Install dependencies
         run: pipenv install
       - name: Scrape
-        run: python scrape.py
+        run: pipenv run python scrape.py
         shell: bash
