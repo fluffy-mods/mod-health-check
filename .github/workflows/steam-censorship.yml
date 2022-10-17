@@ -15,6 +15,10 @@ jobs:
         with:
           python-version: 3.9.9
           cache: pipenv
-      - run: pipenv install
-      - run: python scrape.py
+      - name: Install pipenv
+        run: curl https://raw.githubusercontent.com/pypa/pipenv/master/get-pipenv.py | python
+      - name: Install dependencies
+        run: pipenv install
+      - name: Scrape
+        run: python scrape.py
         shell: bash
