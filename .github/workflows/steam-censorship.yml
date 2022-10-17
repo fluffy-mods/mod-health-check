@@ -1,0 +1,19 @@
+name: Check steam censorship
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+  
+jobs:
+  scrape:
+    name: Scrape steamcommunity websites
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.5.0
+      - uses: actions/setup-python@v4.3.0
+        with: 
+          python-version: 3.9.9
+          cache: pipenv
+      - run: python scrape.py
+        shell: bash
